@@ -1,0 +1,81 @@
+<DnaLibrary Name="ExcelDrawSnake Add-In" RuntimeVersion="v4.0">
+  <ExternalLibrary Path="ExcelDrawSnake.dll" LoadFromBytes="true" Pack="true" />
+
+  <!-- 
+       The RuntimeVersion attribute above allows two settings:
+       * RuntimeVersion="v2.0" - for .NET 2.0, 3.0 and 3.5
+       * RuntimeVersion="v4.0" - for .NET 4 and 4.5
+
+       Additional referenced assemblies can be specified by adding 'Reference' tags. 
+       These libraries will not be examined and registered with Excel as add-in libraries, 
+       but will be packed into the -packed.xll file and loaded at runtime as needed.
+       For example:
+       
+       <Reference Path="Another.Library.dll" Pack="true" />
+  
+       Excel-DNA also allows the xml for ribbon UI extensions to be specified in the .dna file.
+       See the main Excel-DNA site at http://excel-dna.net for downloads of the full distribution.
+  -->
+
+  <Image Name="logout" Path=".\Resources\logout.png" Pack="true"/>
+  <Image Name="login" Path=".\Resources\login.png" Pack="true"/>
+  <Image Name="恢复数据" Path=".\Resources\恢复数据.png" Pack="true"/>
+  <Image Name="refresh_stop" Path=".\Resources\refresh_stop.png" Pack="true"/>
+  <Image Name="quotereal" Path=".\Resources\quotereal.png" Pack="true"/>
+  <Image Name="trade" Path=".\Resources\trade.png" Pack="true"/>
+  <Image Name="IAS" Path=".\Resources\IAS.png" Pack="true"/>
+  <Image Name="实时持仓" Path=".\Resources\实时持仓.png" Pack="true"/>
+  <Image Name="hismarket" Path=".\Resources\hismarket.png" Pack="true"/>
+  <Image Name="histrade" Path=".\Resources\histrade.png" Pack="true"/>
+  <Image Name="基差" Path=".\Resources\基差.png" Pack="true"/>
+  <Image Name="价差" Path=".\Resources\价差.png" Pack="true"/>
+  <Image Name="about" Path=".\Resources\about.png" Pack="true"/>
+  <Image Name="func" Path=".\Resources\自定义函数.png" Pack="true"/>
+
+  <CustomUI>
+    <customUI onLoad="RibbonMenu_Load" xmlns="http://schemas.microsoft.com/office/2006/01/customui" loadImage="LoadImage">
+
+      <ribbon>
+        <tabs>
+          <tab id="gameTab" label="游戏">
+            <group id="group1" label="贪吃蛇">
+              <button id="btnInit" onAction="btnInit_Click" size="large" label="初始化游戏界面" image="trade"/>
+              <button id="btnBegin" onAction="btnBegin_Click" size="large" getLabel="GetBeginLabel" getImage="GetBeginImage" getEnabled="GetBeginEnabled"/>
+              <button id="btnPresent" onAction="btnPresent_Click" size="large" getLabel="GetPresentLabel" getImage="GetPresentImage" getEnabled="GetbtnPresentEnabled"/>
+              <separator id="separator1" visible="true"/>
+
+              <gallery id="galDifficulty" columns="3" label="游戏难度" visible="true">
+                <button id="btnDifficulty1" label="一级" onAction="btnDifficulty1_Click"/>
+                <button id="btnDifficulty2" label="二级" onAction="btnDifficulty2_Click"/>
+                <button id="btnDifficulty3" label="三级" onAction="btnDifficulty3_Click"/>
+              </gallery>
+              
+              <separator id="separator2" visible="true"/>
+              <!--主题And颜色设置-->
+              <button id="btnSnakeColor" onAction="btnSnakeColor_Click" label="蛇的皮肤" getImage="GetbtnSnakeColorImage" getEnabled="GetbtnSnakeColorEnabled"/>
+              <button id="btnRandomPointColor" onAction="btnRandomPointColor_Click" label="果实的皮肤" getImage="GetbtnRandomPointColorImage" getEnabled="GetbtnRandomPointColorEnabled"/>
+
+              <buttonGroup id="btnGroup" visible="true">
+                <button id="btnThemeGensui" onAction="btnThemeGensui_Click" label="主题跟随"  getEnabled="Getzhutigensui"/>
+                <gallery id="gallery" columns="3" label="游戏主题" getEnabled="GetThemeEnabled">
+                  <button id="btnZhuti1" label="主题1" onAction="btnZhuti1_Click"/>
+                  <button id="btnZhuti2" label="主题2" onAction="btnZhuti2_Click"/>
+                  <button id="btnZhuti3" label="主题3" onAction="btnZhuti3_Click"/>
+                </gallery>
+              </buttonGroup>
+
+              <separator id="separator3" visible="true"/>
+
+              <!--得分-->
+              <labelControl id="labScore" label="游戏成绩"/>
+              <labelControl id="labGetScore"  getLabel="GetSorceLabel"/>
+
+            </group>
+          </tab>
+        </tabs>
+      </ribbon>
+
+    </customUI>
+  </CustomUI>
+
+</DnaLibrary>

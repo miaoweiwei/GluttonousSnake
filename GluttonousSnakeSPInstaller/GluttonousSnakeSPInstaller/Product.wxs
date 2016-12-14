@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="Gluttonous Snake" Language="2052" Codepage="1252" Version="1.0.0.0" Manufacturer="喵喵" UpgradeCode="609a58d8-3ffb-4c22-9cc2-ff9c733505ff">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Languages="2052" />
+
+		<MajorUpgrade DowngradeErrorMessage="一个新版本的[ProductName]已经安装，您现在正在安装的不是最新版本" />
+		<MediaTemplate EmbedCab="yes" />
+
+    <!--定义规定的安装目录-->
+    <Property Id ="AddinFolder" Value="C:\Gluttonous Snake\"/>
+   
+    <!--安装窗口-->
+    <UIRef Id="WixUI_Minimal" />
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    
+    <!--保存Excel位数-->
+    <Property Id="OFFICEBITNESS" Value="x86" Secure="yes"/>
+    <!--检测 安装时Excel是否关闭使用的属性变量-->
+    <Property Id="PromptToCloseProcesses" Value="EXCEL" />
+    <Property Id="PromptToCloseDisplayNames" Value="Microsoft Excel" />
+
+    <!--Excel版本号、xll文件名属性-->
+    <Property Id="OFFICEREGKEYS" Value="12.0,14.0,15.0,16.0" />
+    <Property Id="XLL32" Value="ExcelDrawSnake-AddIn-packed.xll" />
+    <Property Id="XLL64" Value="ExcelDrawSnake-AddIn64-packed.xll" />
+
+     <!--检测 .NET Framework-->
+    <PropertyRef Id="NETFRAMEWORK40FULL" />
+    <Condition Message="检测到您的电脑未安装.NET Framework 4.0，请安装后重试.您可以到https://download.microsoft.com/download/9/5/A/95A9616B-7A37-4AF6-BC36-D6EA96C8DAAE/dotNetFx40_Full_x86_x64.exe下载">
+      <![CDATA[NETFRAMEWORK40FULL]]>
+    </Condition>
+
+    <!--检测 支持的Excel是否安装-->
+    <Property Id="EXCEL2007INSTALLPATH" Secure="yes">
+      <RegistrySearch Id="OfficeExcel2007InstallPath64" Root="HKLM" Key="SOFTWARE\Microsoft\Office\12.0\Excel\InstallRoot" Name="Path" Type="raw" Win64="yes" />
+      <RegistrySearch Id="OfficeExcel2007InstallPath32" Root="HKLM" Key="SOFTWARE\Microsoft\Office\12.0\Excel\InstallRoot" Name="Path" Type="raw" Win64="no" />
+    </Property>
+    <Property Id="EXCEL2010INSTALLPATH" Secure="yes">
+      <RegistrySearch Id="OfficeExcel2010InstallPath64" Root="HKLM" Key="SOFTWARE\Microsoft\Office\14.0\Excel\InstallRoot" Name="Path" Type="raw" Win64="yes" />
+      <RegistrySearch Id="OfficeExcel2010InstallPath32" Root="HKLM" Key="SOFTWARE\Microsoft\Office\14.0\Excel\InstallRoot" Name="Path" Type="raw" Win64="no" />
+    </Property>
+    <Property Id="EXCEL2013INSTALLPATH" Secure="yes">
+      <RegistrySearch Id="OfficeExcel2013InstallPath64" Root="HKLM" Key="SOFTWARE\Microsoft\Office\15.0\Excel\InstallRoot" Name="Path" Type="raw" Win64="yes" />
+      <RegistrySearch Id="OfficeExcel2013InstallPath32" Root="HKLM" Key="SOFTWARE\Microsoft\Office\15.0\Excel\InstallRoot" Name="Path" Type="raw" Win64="no" />
+    </Property>
+    <Property Id="EXCEL2016INSTALLPATH" Secure="yes">
+      <RegistrySearch Id="OfficeExcel2016InstallPath64" Root="HKLM" Key="SOFTWARE\Microsoft\Office\16.0\Excel\InstallRoot" Name="Path" Type="raw" Win64="yes" />
+      <RegistrySearch Id="OfficeExcel2016InstallPath32" Root="HKLM" Key="SOFTWARE\Microsoft\Office\16.0\Excel\InstallRoot" Name="Path" Type="raw" Win64="no" />
+    </Property>
+    <Condition Message="此插件仅支持Office Excel 2007 and/or 2010 and/or 2013 and/or 2016 (32-bit or 64-bit)，检测到您未安装相对应的版本，请安装后重试">
+      <![CDATA[Installed OR EXCEL2007INSTALLPATH OR EXCEL2010INSTALLPATH OR EXCEL2013INSTALLPATH OR EXCEL2016INSTALLPATH]]>
+    </Condition>
+    <!--<Condition Message="[OfficeExcel2007InstallPath64]">OFFICEBITNESS=1</Condition>-->
+    
+    <!--Custom Action-->
+    <Binary Id="InstallerCA.CA.dll" SourceFile="$(var.InstallerCA.TargetDir)$(var.InstallerCA.TargetName).CA.dll" />
+    
+    <CustomAction Id="Action_RegisterAddIn" BinaryKey="InstallerCA.CA.dll" DllEntry="CaRegisterAddIn" Return="check" Execute="immediate"/>
+    <CustomAction Id="Action_UnRegisterAddIn" BinaryKey="InstallerCA.CA.dll" DllEntry="CaUnRegisterAddIn" Return="check" Execute="immediate" />
+    <CustomAction Id="Action_CloseAppsPrompt" BinaryKey="InstallerCA.CA.dll" DllEntry="ClosePrompt" Return="check" />
+
+    <InstallExecuteSequence>
+      <Custom Action="Action_CloseAppsPrompt" Before="CostInitialize"></Custom>
+      <Custom Action="Action_UnRegisterAddIn" After="Action_CloseAppsPrompt">Installed AND NOT UPGRADINGPRODUCTCODE</Custom>
+      <Custom Action="Action_RegisterAddIn" After="Action_UnRegisterAddIn">NOT Installed</Custom>
+    </InstallExecuteSequence>
+    
+    <AdminExecuteSequence>
+      <Custom Action="Action_CloseAppsPrompt" After="CostInitialize" />
+      <Custom Action="Action_RegisterAddIn" After="CostInitialize">NOT Installed</Custom>
+      <Custom Action="Action_UnRegisterAddIn" After="CostInitialize">Installed AND NOT UPGRADINGPRODUCTCODE</Custom>
+    </AdminExecuteSequence>
+      
+		<Feature Id="ProductFeature" Title="GluttonousSnakeSPInstaller" Level="1">
+			<ComponentGroupRef Id="x86_ProductComponents" />
+			<ComponentGroupRef Id="x64_ProductComponents" />
+			<ComponentGroupRef Id="Pics_ProductComponents" />
+		</Feature>
+	</Product>
+  
+  
+  <!--安装目录的文件夹结构-->
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="AddinFolder">
+				<Directory Id="Resources" Name="Resources"/>
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<!--x86文件资源-->
+  <Fragment>
+    <ComponentGroup Id="x86_ProductComponents" >
+      <Component Id="x86_AddFiles" Directory="AddinFolder" Guid="{7C23EAE8-4AAB-4955-B657-5B6ADC9510F0}">
+        <!--x86 AddIn文件 24项-->
+        <Condition>OFFICEBITNESS="x86"</Condition>
+        <File Id ="x86_SumscopeAddIn.pdb" Source="x86\ExcelDrawSnake.dll"/>
+        <File Id ="x86_SumscopeAddIn_AddIn.dna" Source="x86\ExcelDrawSnake.pdb"/>
+        <File Id ="x86_SumscopeAddIn_AddIn.xll" Source="x86\ExcelDrawSnake-AddIn.dna"/>
+        <File Id ="x86_SumscopeAddIn_AddIn_packed.xll" Source="x86\ExcelDrawSnake-AddIn.xll"/>
+        <File Id ="x86_SumscopeAddInEntity.dll" Source="x86\ExcelDrawSnake-AddIn-packed.xll"/>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <!--x64文件资源-->
+  <Fragment>
+    <ComponentGroup Id="x64_ProductComponents" >
+      <Component Id="x64_AddFiles" Directory="AddinFolder" Guid="{5A41DD1F-3939-4F36-B707-51DC52371D27}">
+        <!--x64 AddIn文件 25项 比x86多libzmq.dll文件-->
+        <Condition>OFFICEBITNESS="x64"</Condition>
+        <File Id ="x64_SumscopeAddIn.pdb" Source="x64\ExcelDrawSnake.dll"/>
+        <File Id ="x64_SumscopeAddIn_AddIn.dna" Source="x64\ExcelDrawSnake.pdb"/>
+        <File Id ="x64_SumscopeAddIn_AddIn.xll" Source="x64\ExcelDrawSnake-AddIn64.dna"/>
+        <File Id ="x64_SumscopeAddIn_AddIn_packed.xll" Source="x64\ExcelDrawSnake-AddIn64.xll"/>
+        <File Id ="x64_SumscopeAddInEntity.pdb" Source="x64\ExcelDrawSnake-AddIn64-packed.xll"/>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <!--图片资源文件，该资源x86、x64都需要使用，不用区分，统一从x86文件夹中获取-->
+  <Fragment>
+    <ComponentGroup Id="Pics_ProductComponents" >
+      <Component Id="Pics" Directory="Resources" Guid="{2185AEEA-CE1B-4BC4-BDCA-14C4927A3612}" >
+        <!--图片资源 22项-->
+        <File Id ="about.png" Source="x86\Resources\about.png"/>
+        <File Id ="login.png" Source="x86\Resources\login.png" />
+        <File Id ="logout.png" Source="x86\Resources\logout.png" />
+        <File Id ="trade.png" Source="x86\Resources\trade.png" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>
